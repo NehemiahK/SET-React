@@ -1,0 +1,14 @@
+div{
+    display: flex;
+    flex-wrap: wrap;
+    padding: 20px;
+
+}
+img{
+    border: 1px black solid;
+    height: 150px;
+}
+
+.selected{
+    border: 1px blue solid;
+}
