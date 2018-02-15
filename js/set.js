@@ -2,13 +2,55 @@ var shapeArr = [];
 var shadeArr =[];
 var colorArr =[];
 var numberArr =[];
-
 var arrArrs= [shapeArr,shadeArr,colorArr,numberArr];
+var matches = 0;
 
+class Timer extends React.Component{
+    constructor(props){
+        super(props);
+        this.updateTimer = this.updateTimer.bind(this);
+        this.state = {
+            time: 0,
+        }
+    }
+
+    updateTimer(){
+        this.setState({time: this.state.time +1});
+
+        if (this.state.time == 60){
+            alert('game over you found ' + matches + ' matches');
+            clearInterval(this.interval);
+        }
+
+    }
+
+    componentDidMount(){
+        this.interval = setInterval(this.updateTimer.bind(this), 1000);
+    }
+
+    render(){
+        return (
+            <div>
+                Timer: {this.state.time}
+            </div>
+        );
+    }
+
+}
+
+function clearArrays(){
+     shapeArr = [];
+     shadeArr =[];
+     colorArr =[];
+     numberArr =[];
+     arrArrs= [shapeArr,shadeArr,colorArr,numberArr];
+}
 function checkAll(array){
     //console.log('running check all');
+    console.log('in check all')
     for (var i=0; i<array.length;i++){
-        //console.log('inside for loop');
+        console.log("array length: " +  array.length);
+        console.log(arrArrs);
         if (checkMatch(array[i]) == false){
             return false;
         }
@@ -32,24 +74,41 @@ class Card extends React.Component{ // define the component
         this.test = this.test.bind(this);
     }
     test(){
+        if(this.img.classList.contains('selected') == false){
+            this.img.setAttribute('class', 'selected');
+            shapeArr.push(this.props.shape);
+            shadeArr.push(this.props.shading);
+            colorArr.push(this.props.color);
+            numberArr.push(this.props.number);
 
-        this.img.setAttribute('class', 'selected');
-        shapeArr.push(this.props.shape);
-        shadeArr.push(this.props.shading);
-        colorArr.push(this.props.color);
-        numberArr.push(this.props.number);
+            console.log(shapeArr,shadeArr,colorArr,numberArr);
 
-        console.log(shapeArr,shadeArr,colorArr,numberArr);
+            if (shapeArr.length==3){
+                var match = checkAll(arrArrs);
+                console.log(match);
 
-        if (shapeArr.length==3){
-            var match = checkAll(arrArrs);
-            //console.log(match);
+                if (match == true){
+                    alert('its a match');
+                    var elems = document.querySelectorAll(".selected");
 
-            if (match == true){
-                alert('its a match');
-            }
-            else{
-                alert('THIS ISNT A MATCH!');
+                    [].forEach.call(elems, function(el) {
+                        console.log("forEach");
+                        el.classList.remove("selected");
+                    });
+                    matches +=1;
+
+                    this.props.handleChange('garbage');
+                }
+                else{
+                    alert('THIS ISNT A MATCH!');
+                    var elems = document.querySelectorAll(".selected");
+
+                    [].forEach.call(elems, function(el) {
+                        console.log("forEach");
+                        el.classList.remove("selected");
+                    });
+                }
+                clearArrays();
             }
         }
 
@@ -94,6 +153,16 @@ class SetCard{
 
 
 class App extends React.Component{
+    constructor(props){
+        super(props);
+        this.state = {refresh:0};
+
+        this.changeParent = this.changeParent.bind(this);
+    }
+
+    changeParent(e){
+        this.setState({refresh: this.state.refresh + 1});
+    }
     render(){
         var cards =  [];
         var url = 'https://puzzles.setgame.com/images/setcards/small/';
@@ -103,8 +172,6 @@ class App extends React.Component{
 
         for (var i=1; i<=81; i++){
             var color, shape, shading,number;
-
-
 
             if (i>=1 && i<=27){
                 shading = 'solid';
@@ -116,9 +183,7 @@ class App extends React.Component{
                 shading = 'transparent';
             }
 
-            if (i%9==0){
-                passedNine +=1;
-            }
+
 
             if (passedNine == 1 || passedNine == 4 || passedNine == 7){
                 shape = 'squiggle';
@@ -129,6 +194,11 @@ class App extends React.Component{
             else if (passedNine == 3 || passedNine == 6 || passedNine == 9){
                 shape = 'oval';
             }
+
+            if (i%9==0){
+                passedNine +=1;
+            }
+
             color = colors[currColorIndex];
 
             if (i%3==0){
@@ -160,7 +230,7 @@ class App extends React.Component{
 
         var cards = cards.map(
             x=> <Card key={`item${x.number}`} pic ={x.picture} color={x.color}
-                shape={x.shape} shading={x.shading} number={x.amount}></Card>);
+                shape={x.shape} shading={x.shading} number={x.amount} handleChange={this.changeParent}></Card>);
 
         function shuffle(array) {
             let counter = array.length;
@@ -186,13 +256,16 @@ class App extends React.Component{
         return (
             <div>
                 {cards}
-            </div>
+        </div>
         );
     }
 }
 
-
 ReactDOM.render(
-    <App/>, // name of component
+    <div className='centered'>
+        <h4>SET React</h4>
+        <Timer/>
+    <App />
+</div>, // name of component
     document.getElementById('root') // where the component should go in the dom
 );

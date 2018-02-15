@@ -1,8 +1,10 @@
+body{
+    background: #73c1bc5c;
+}
 div{
     display: flex;
     flex-wrap: wrap;
     padding: 20px;
-
 }
 img{
     border: 1px black solid;
@@ -10,5 +12,9 @@ img{
 }
 
 .selected{
-    border: 1px blue solid;
+    border: 3px blue solid;
+}
+.centered{
+    justify-content: center;
+
 }
